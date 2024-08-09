@@ -1,0 +1,86 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(uuid())
+  username  String     @unique
+  password  String
+  admin      Boolean @default(false)
+  starSystems  StarsSystems[]
+  planets   Planets[]
+  characters Characters[]
+  spaceShips     SpaceShips[]
+
+  @@map("users")
+}
+
+model StarsSystems {
+  id String @id @default(uuid())
+  name String @unique
+  description String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdById String
+  planets     Planets[]
+
+
+  @@map("star-systems")
+}
+
+model Planets {
+  id String @id @default(uuid())
+  name String @unique
+  wheather String
+  ground String
+  polulation Int
+  system StarsSystems @relation(fields: [systemName],references: [name])
+  systemName String
+  createdBy User   @relation(fields: [createdById], references: [id])
+  createdById String
+  characters Characters[]
+
+
+  @@map("planets")
+}
+
+model Characters {
+  id String @id @default(uuid())
+  name String
+  racial String
+  associated Associated @default(EMPIRE)
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdById String
+  planet      Planets   @relation(fields: [planetId], references: [id])
+  planetId    String
+
+
+  @@map("characters")
+}
+
+model SpaceShips {
+  id String @id @default(uuid())
+  name String
+  model String
+  fabricated String
+  capacity Int
+  createdBy   User @relation(fields: [createdById], references: [id])
+  createdById String
+
+
+  @@map("space-ships")
+}
+
+enum Associated {
+  JEDI
+  SITH
+  REBEL
+  EMPIRE
+  CONTRABAND
+  MERCHANT
+}
